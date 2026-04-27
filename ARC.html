@@ -1,0 +1,1779 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ARC — 국경을 넘어도 사라지지 않는 신뢰</title>
+<meta name="description" content="ARC는 흩어진 삶을 하나의 점수로 만듭니다. 입국 첫날, 바로 집 계약까지." />
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          brand: '#0099CC',
+          'brand-dark': '#007AA3',
+          accent: '#00C896',
+          ink: '#1A202C',
+          navy: '#0A1628',
+          'navy-2': '#0F1F35',
+          mist: '#F5F7FA',
+          'mist-2': '#E8ECF0',
+          'mute': '#9AA5B4',
+        },
+        fontFamily: {
+          sans: ['Pretendard', 'DM Sans', 'system-ui', 'sans-serif'],
+          dm: ['"DM Sans"', 'Pretendard', 'sans-serif'],
+        },
+        boxShadow: {
+          card: '0 4px 24px rgba(0,0,0,0.08)',
+          'card-hover': '0 12px 40px rgba(0,0,0,0.16)',
+          'glow': '0 0 60px rgba(0,153,204,0.35)',
+        },
+        keyframes: {
+          float: {
+            '0%, 100%': { transform: 'translateY(0px)' },
+            '50%': { transform: 'translateY(-8px)' },
+          },
+          shake: {
+            '0%, 100%': { transform: 'translateX(0)' },
+            '25%': { transform: 'translateX(-4px) rotate(-8deg)' },
+            '75%': { transform: 'translateX(4px) rotate(8deg)' },
+          },
+          marquee: {
+            '0%': { transform: 'translateX(0)' },
+            '100%': { transform: 'translateX(-50%)' },
+          },
+          pulseSoft: {
+            '0%, 100%': { boxShadow: '0 0 0 0 rgba(0,153,204,0.4)' },
+            '50%': { boxShadow: '0 0 0 16px rgba(0,153,204,0)' },
+          },
+          slideInRight: {
+            '0%': { transform: 'translateX(40px)', opacity: '0' },
+            '100%': { transform: 'translateX(0)', opacity: '1' },
+          },
+        },
+        animation: {
+          float: 'float 4s ease-in-out infinite',
+          shake: 'shake 0.6s ease-in-out',
+          marquee: 'marquee 30s linear infinite',
+          'pulse-soft': 'pulseSoft 3s ease-in-out infinite',
+          'slide-in-right': 'slideInRight 0.5s ease-out',
+        }
+      }
+    }
+  }
+</script>
+
+<style>
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Pretendard', 'DM Sans', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    color: #1A202C;
+    background: #ffffff;
+  }
+
+  /* Section label */
+  .section-label {
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0.18em;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  /* Reveal */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s ease, transform .8s ease; }
+  .reveal.is-visible { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: .12s; }
+  .reveal-delay-2 { transition-delay: .24s; }
+  .reveal-delay-3 { transition-delay: .36s; }
+
+  /* Particles canvas */
+  #particles, #particles-final {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+  }
+
+  /* Phone mockup */
+  .phone-frame {
+    background: linear-gradient(145deg, #1a2742, #0a1628);
+    border-radius: 36px;
+    padding: 8px;
+    box-shadow: 0 30px 80px rgba(0,153,204,0.25), 0 0 0 1px rgba(255,255,255,0.06) inset;
+  }
+  .phone-screen {
+    background: linear-gradient(160deg, #0F1F35, #0A1628);
+    border-radius: 28px;
+    overflow: hidden;
+  }
+
+  /* CTA buttons */
+  .btn-primary {
+    background: #0099CC;
+    color: white;
+    padding: 14px 28px;
+    border-radius: 999px;
+    font-weight: 600;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: all .25s ease;
+    position: relative; overflow: hidden;
+  }
+  .btn-primary:hover { background: #007AA3; transform: translateY(-1px); }
+  .btn-primary:hover .arrow { transform: translateX(4px); }
+  .arrow { transition: transform .25s ease; display: inline-block; }
+
+  .btn-ghost {
+    color: white;
+    padding: 14px 24px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.25);
+    font-weight: 500;
+    transition: all .2s ease;
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.4); }
+
+  /* Underline for active language */
+  .lang-btn { position: relative; padding: 4px 8px; transition: color .15s ease; }
+  .lang-btn::after {
+    content: ''; position: absolute; left: 8px; right: 8px; bottom: -4px;
+    height: 2px; background: #0099CC;
+    transform: scaleX(0); transform-origin: left;
+    transition: transform .2s ease-out;
+  }
+  .lang-btn.active { color: white; }
+  .lang-btn.active::after { transform: scaleX(1); }
+  .lang-btn:not(.active) { color: #9AA5B4; }
+  .lang-btn:not(.active):hover { color: white; }
+
+  /* Card top border */
+  .pain-card {
+    border-top: 4px solid #0099CC;
+    transition: all .3s ease;
+  }
+  .pain-card:hover {
+    border-top-width: 8px;
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.10);
+  }
+
+  /* Steps connector */
+  .step-line {
+    stroke-dasharray: 6 6;
+    stroke-dashoffset: 200;
+    transition: stroke-dashoffset 1.2s ease;
+  }
+  .reveal.is-visible .step-line { stroke-dashoffset: 0; }
+
+  /* Toggle switch */
+  .switch { position: relative; width: 44px; height: 24px; background: #4a5568; border-radius: 999px; cursor: pointer; transition: background .2s; flex-shrink: 0; }
+  .switch.on { background: #0099CC; }
+  .switch::after {
+    content: ''; position: absolute; top: 2px; left: 2px;
+    width: 20px; height: 20px; background: white; border-radius: 50%;
+    transition: transform .25s ease;
+  }
+  .switch.on::after { transform: translateX(20px); }
+
+  /* Donut */
+  .donut-segment { transition: stroke-dasharray 1.2s ease; }
+
+  /* Lock card */
+  .feature-card { transition: all .4s ease; }
+  .feature-card.locked { filter: grayscale(1); opacity: 0.55; }
+  .feature-card.unlocked { filter: grayscale(0); opacity: 1; transform: scale(1); }
+
+  /* Marquee */
+  .marquee-track { display: flex; width: max-content; animation: marquee 30s linear infinite; }
+  .marquee-track:hover { animation-play-state: paused; }
+
+  /* Range slider */
+  input[type="range"] {
+    -webkit-appearance: none; appearance: none;
+    height: 6px; background: rgba(255,255,255,0.15); border-radius: 999px; outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 24px; height: 24px; background: #0099CC; border-radius: 50%;
+    cursor: pointer; box-shadow: 0 0 0 4px rgba(0,153,204,0.2);
+    transition: transform .2s;
+  }
+  input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+  input[type="range"]::-moz-range-thumb {
+    width: 24px; height: 24px; background: #0099CC; border-radius: 50%;
+    cursor: pointer; border: none;
+  }
+
+  /* Score range light */
+  .score-range { background: rgba(255,255,255,0.08); }
+
+  /* Compare table */
+  .compare-row { transition: background .2s; }
+  .compare-row:hover { background: #E6F7FF; }
+
+  /* Pricing card highlight */
+  .price-card { transition: all .3s ease; }
+  .price-card:hover { transform: translateY(-8px); box-shadow: 0 20px 50px rgba(0,0,0,0.10); }
+  .price-card.featured { transform: scale(1.04); }
+  .price-card.featured:hover { transform: scale(1.04) translateY(-8px); }
+
+  /* Accordion */
+  .accordion-content { max-height: 0; overflow: hidden; transition: max-height .35s ease; }
+  .accordion.open .accordion-content { max-height: 500px; }
+  .accordion.open .accordion-icon { transform: rotate(180deg); }
+  .accordion-icon { transition: transform .3s ease; }
+
+  /* Nav scrolled */
+  .nav-scrolled {
+    background: rgba(10, 22, 40, 0.85) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 2px 20px rgba(0,0,0,0.2);
+  }
+
+  /* Globe arc */
+  .arc-line {
+    stroke-dasharray: 200;
+    stroke-dashoffset: 200;
+    animation: arc-draw 3s ease-in-out infinite;
+  }
+  @keyframes arc-draw {
+    0% { stroke-dashoffset: 200; }
+    50% { stroke-dashoffset: 0; }
+    100% { stroke-dashoffset: -200; }
+  }
+
+  /* Number flash */
+  @keyframes redFlash { 0%, 100% { color: white; } 50% { color: #ef4444; } }
+  .flash-red { animation: redFlash .4s ease-in-out; }
+
+  /* Hide scrollbar for marquee */
+  .marquee-mask {
+    mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+  }
+
+  /* City tab */
+  .city-tab.active { background: white; color: #0A1628; }
+</style>
+</head>
+<body class="bg-white">
+
+<!-- ====================================================== -->
+<!-- SECTION 00 — NAVIGATION                                -->
+<!-- ====================================================== -->
+<nav id="nav" class="fixed top-0 left-0 right-0 z-50 bg-navy transition-all duration-300">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10 h-16 flex items-center justify-between">
+    <a href="#hero" class="flex items-center gap-2 text-white font-dm font-bold text-2xl tracking-tight">
+      <span class="inline-block w-7 h-7 rounded-full bg-gradient-to-br from-brand to-accent"></span>
+      ARC
+    </a>
+
+    <ul class="hidden md:flex items-center gap-8 text-sm text-white/80">
+      <li><a class="hover:text-white transition" href="#problem">About</a></li>
+      <li><a class="hover:text-white transition" href="#how">How It Works</a></li>
+      <li><a class="hover:text-white transition" href="#pricing">Pricing</a></li>
+      <li><a class="hover:text-white transition" href="#">Log In</a></li>
+    </ul>
+
+    <div class="flex items-center gap-4">
+      <div class="hidden sm:flex items-center gap-1 text-sm font-medium">
+        <button class="lang-btn active" data-lang="KO">KO</button>
+        <button class="lang-btn" data-lang="EN">EN</button>
+        <button class="lang-btn" data-lang="JA">JA</button>
+      </div>
+      <a href="#cta-final" class="btn-primary text-sm !py-2.5 !px-5">시작하기 <span class="arrow">→</span></a>
+      <button id="hamburger" class="md:hidden text-white" aria-label="Menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile menu -->
+  <div id="mobile-menu" class="hidden md:hidden bg-navy border-t border-white/10">
+    <div class="px-6 py-6 space-y-4">
+      <div class="flex gap-2 text-sm font-medium pb-4 border-b border-white/10">
+        <button class="lang-btn active" data-lang="KO">KO</button>
+        <button class="lang-btn" data-lang="EN">EN</button>
+        <button class="lang-btn" data-lang="JA">JA</button>
+      </div>
+      <a class="block text-white/80" href="#problem">About</a>
+      <a class="block text-white/80" href="#how">How It Works</a>
+      <a class="block text-white/80" href="#pricing">Pricing</a>
+      <a class="block text-white/80" href="#">Log In</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ====================================================== -->
+<!-- SECTION 01 — HERO                                      -->
+<!-- ====================================================== -->
+<section id="hero" class="relative bg-navy text-white overflow-hidden pt-28 lg:pt-36 pb-24 lg:pb-32">
+  <canvas id="particles"></canvas>
+
+  <!-- Country nodes graphic -->
+  <svg class="absolute inset-0 w-full h-full opacity-30 pointer-events-none" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#0099CC" stop-opacity="0"/>
+        <stop offset="50%" stop-color="#0099CC" stop-opacity="0.6"/>
+        <stop offset="100%" stop-color="#00C896" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <g stroke="url(#lineGrad)" stroke-width="1" fill="none">
+      <line x1="200" y1="200" x2="600" y2="400"/>
+      <line x1="600" y1="400" x2="1000" y2="180"/>
+      <line x1="600" y1="400" x2="900" y2="600"/>
+      <line x1="600" y1="400" x2="280" y2="620"/>
+      <line x1="200" y1="200" x2="900" y2="600"/>
+    </g>
+    <g fill="#0099CC">
+      <circle cx="200" cy="200" r="4"><animate attributeName="r" values="3;6;3" dur="3s" repeatCount="indefinite"/></circle>
+      <circle cx="1000" cy="180" r="4"><animate attributeName="r" values="3;6;3" dur="3s" begin="0.5s" repeatCount="indefinite"/></circle>
+      <circle cx="900" cy="600" r="4"><animate attributeName="r" values="3;6;3" dur="3s" begin="1s" repeatCount="indefinite"/></circle>
+      <circle cx="280" cy="620" r="4"><animate attributeName="r" values="3;6;3" dur="3s" begin="1.5s" repeatCount="indefinite"/></circle>
+    </g>
+    <circle cx="600" cy="400" r="10" fill="#00C896">
+      <animate attributeName="r" values="8;14;8" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+  </svg>
+
+  <div class="relative max-w-7xl mx-auto px-6 lg:px-10 grid lg:grid-cols-2 gap-12 items-center">
+    <!-- Copy -->
+    <div class="relative z-10">
+      <div class="reveal flex flex-wrap gap-2 mb-6">
+        <span class="text-xs font-dm font-semibold px-3 py-1 rounded-full bg-accent/20 text-accent border border-accent/30">Beta</span>
+        <span class="text-xs font-dm font-semibold px-3 py-1 rounded-full bg-white/10 text-white/90">120K 글로벌 유저</span>
+        <span class="text-xs font-dm font-semibold px-3 py-1 rounded-full bg-white/10 text-white/90">무료로 시작</span>
+      </div>
+      <h1 class="reveal reveal-delay-1 text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.15] tracking-tight">
+        입국 첫날,<br/>바로 집 계약까지
+      </h1>
+      <p class="reveal reveal-delay-2 mt-6 text-lg lg:text-xl text-white/70 leading-relaxed max-w-xl">
+        국경을 넘어도 당신의 신뢰는 사라지지 않습니다.<br class="hidden sm:block"/>
+        ARC는 흩어진 삶을 하나의 점수로 만듭니다.
+      </p>
+      <div class="reveal reveal-delay-3 mt-10 flex flex-wrap gap-4">
+        <a href="#score" class="btn-primary">1분 만에 내 점수 확인하기 <span class="arrow">→</span></a>
+        <a href="#how" class="btn-ghost">서비스 둘러보기</a>
+      </div>
+
+      <!-- Scroll indicator -->
+      <div class="hidden lg:flex items-center gap-2 mt-16 text-white/40 text-xs font-dm">
+        <div class="w-5 h-8 rounded-full border border-white/30 flex items-start justify-center p-1">
+          <div class="w-1 h-2 bg-white/60 rounded-full animate-bounce"></div>
+        </div>
+        <span>SCROLL</span>
+      </div>
+    </div>
+
+    <!-- Phone mockup -->
+    <div class="relative z-10 flex justify-center lg:justify-end">
+      <div class="phone-frame w-[280px] sm:w-[320px] animate-float">
+        <div class="phone-screen aspect-[9/19] p-5 flex flex-col">
+          <!-- Status bar -->
+          <div class="flex justify-between text-[10px] text-white/60 font-dm mb-6">
+            <span>9:41</span>
+            <div class="flex gap-1 items-center">
+              <span>●●●</span>
+              <span>72%</span>
+            </div>
+          </div>
+          <!-- Card -->
+          <div class="rounded-2xl bg-gradient-to-br from-brand to-accent p-5 text-white">
+            <div class="flex justify-between items-start mb-8">
+              <div>
+                <div class="text-[10px] font-dm tracking-widest opacity-80">ARC SCORE</div>
+                <div class="text-[10px] font-dm opacity-60 mt-1">Updated · 72h</div>
+              </div>
+              <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
+                <span class="text-[8px]">●</span>
+              </div>
+            </div>
+            <div class="flex items-end gap-2">
+              <div id="hero-score" class="text-5xl font-dm font-bold">0</div>
+              <div class="text-xs opacity-80 mb-2">/ 6,600</div>
+            </div>
+            <div class="mt-4 h-1.5 bg-white/20 rounded-full overflow-hidden">
+              <div id="hero-bar" class="h-full bg-white rounded-full transition-all duration-1000" style="width:0%"></div>
+            </div>
+            <div class="text-[10px] mt-3 opacity-80 font-dm">Mika · JP → DE</div>
+          </div>
+          <!-- Stats -->
+          <div class="grid grid-cols-3 gap-2 mt-4 text-center">
+            <div class="bg-white/5 rounded-lg p-2">
+              <div class="text-[9px] text-white/50 font-dm uppercase">Living</div>
+              <div class="text-sm font-bold text-white mt-1">25%</div>
+            </div>
+            <div class="bg-white/5 rounded-lg p-2">
+              <div class="text-[9px] text-white/50 font-dm uppercase">Travel</div>
+              <div class="text-sm font-bold text-white mt-1">25%</div>
+            </div>
+            <div class="bg-white/5 rounded-lg p-2">
+              <div class="text-[9px] text-white/50 font-dm uppercase">Trust</div>
+              <div class="text-sm font-bold text-white mt-1">15%</div>
+            </div>
+          </div>
+          <!-- Mini items -->
+          <div class="mt-4 space-y-2 flex-1">
+            <div class="flex justify-between items-center bg-white/5 rounded-lg px-3 py-2">
+              <span class="text-xs text-white/80">Apartment Rental</span>
+              <span class="text-[10px] text-accent font-dm font-bold">UNLOCKED</span>
+            </div>
+            <div class="flex justify-between items-center bg-white/5 rounded-lg px-3 py-2">
+              <span class="text-xs text-white/80">Bank Account</span>
+              <span class="text-[10px] text-accent font-dm font-bold">UNLOCKED</span>
+            </div>
+            <div class="flex justify-between items-center bg-white/5 rounded-lg px-3 py-2">
+              <span class="text-xs text-white/80">Visa Support</span>
+              <span class="text-[10px] text-white/40 font-dm font-bold">LOCKED</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<!-- SECTION 02 — PROBLEM                                   -->
+<!-- ====================================================== -->
+<section id="problem" class="bg-white py-24 lg:py-32">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="reveal max-w-3xl">
+      <div class="section-label text-brand mb-4">THE PROBLEM</div>
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight tracking-tight text-ink">
+        왜 외국인은 6개월을<br/>기다려야 하죠?
+      </h2>
+      <p class="mt-6 text-lg text-ink/60 leading-relaxed">
+        신용이 없는 게 아닙니다. <span class="text-brand font-semibold">기록이 없는 것</span>입니다.
+      </p>
+    </div>
+
+    <div class="mt-16 grid md:grid-cols-3 gap-6">
+      <!-- Card 1 -->
+      <div class="reveal pain-card bg-white rounded-xl p-8 border border-mist-2/60 shadow-sm">
+        <div class="w-14 h-14 rounded-xl bg-mist flex items-center justify-center mb-6">
+          <!-- Rejection stamp icon -->
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9" stroke="#0099CC" stroke-width="2"/>
+            <path d="M6 6L18 18M18 6L6 18" stroke="#0099CC" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-ink mb-3">계좌 개설 거절</h3>
+        <p class="text-ink/60 leading-relaxed">"은행이 당신을 모른다는 이유로"</p>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="reveal reveal-delay-1 pain-card bg-white rounded-xl p-8 border border-mist-2/60 shadow-sm">
+        <div class="w-14 h-14 rounded-xl bg-mist flex items-center justify-center mb-6">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <rect x="4" y="9" width="16" height="11" stroke="#0099CC" stroke-width="2"/>
+            <path d="M4 9V6L12 3L20 6V9" stroke="#0099CC" stroke-width="2" stroke-linejoin="round"/>
+            <circle cx="12" cy="14" r="2" fill="#0099CC"/>
+            <path d="M12 16V18" stroke="#0099CC" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-ink mb-3">임대 계약</h3>
+        <p class="text-ink/60 leading-relaxed">"내국인의 3배 현금을 요구받았습니다"</p>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="reveal reveal-delay-2 pain-card bg-white rounded-xl p-8 border border-mist-2/60 shadow-sm">
+        <div class="w-14 h-14 rounded-xl bg-mist flex items-center justify-center mb-6">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <path d="M4 12C4 7.58 7.58 4 12 4C14.5 4 16.7 5.15 18.16 7" stroke="#0099CC" stroke-width="2" stroke-linecap="round"/>
+            <path d="M20 12C20 16.42 16.42 20 12 20C9.5 20 7.3 18.85 5.84 17" stroke="#0099CC" stroke-width="2" stroke-linecap="round"/>
+            <path d="M18 3V7H14M6 21V17H10" stroke="#0099CC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-ink mb-3">영원한 증빙</h3>
+        <p class="text-ink/60 leading-relaxed">"기한마다 서류를 다시 제출해야 합니다"</p>
+      </div>
+    </div>
+
+    <!-- Bottom banner -->
+    <div class="reveal mt-16 rounded-2xl bg-gradient-to-r from-brand to-accent p-10 lg:p-14 text-white text-center">
+      <p class="text-xl lg:text-2xl font-medium leading-relaxed">
+        존재는 있지만 증명할 수 없는 상태.<br class="sm:hidden"/>
+        <span class="font-bold"> ARC가 바꿉니다.</span>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<!-- SECTION 03 — HOW IT WORKS                              -->
+<!-- ====================================================== -->
+<section id="how" class="bg-mist py-24 lg:py-32">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="reveal max-w-3xl">
+      <div class="section-label text-brand mb-4">HOW IT WORKS</div>
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight tracking-tight text-ink">
+        성실한 삶은<br/>데이터로 남습니다
+      </h2>
+      <p class="mt-6 text-lg text-ink/60 leading-relaxed">
+        ARC는 그 흔적을 신뢰로 번역합니다. <span class="text-brand font-semibold">3단계로 끝납니다.</span>
+      </p>
+    </div>
+
+    <!-- Timeline -->
+    <div class="reveal mt-20 relative">
+      <!-- Connecting dotted lines (desktop only) -->
+      <svg class="hidden md:block absolute top-12 left-0 w-full h-2" viewBox="0 0 1200 8" preserveAspectRatio="none">
+        <line class="step-line" x1="200" y1="4" x2="600" y2="4" stroke="#0099CC" stroke-width="2"/>
+        <line class="step-line" x1="600" y1="4" x2="1000" y2="4" stroke="#0099CC" stroke-width="2"/>
+      </svg>
+
+      <div class="grid md:grid-cols-3 gap-10 md:gap-6 relative">
+        <!-- Step 1 -->
+        <div class="text-center group">
+          <div class="mx-auto w-24 h-24 rounded-full bg-white shadow-card flex items-center justify-center mb-6 transition-transform group-hover:scale-110 relative z-10">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22" stroke="#0099CC" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="12" cy="12" r="4" fill="#0099CC"/>
+            </svg>
+          </div>
+          <div class="text-xs font-dm font-bold text-brand tracking-widest mb-2">STEP 01</div>
+          <h3 class="text-xl font-bold text-ink mb-3">연동하기</h3>
+          <p class="text-ink/60 leading-relaxed text-[15px]">
+            SNS·웨어러블·캘린더를 연결하세요<br/>
+            <span class="text-ink/40 text-sm">(인스타그램, 애플워치, 구글 캘린더)</span>
+          </p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="text-center group">
+          <div class="mx-auto w-24 h-24 rounded-full bg-white shadow-card flex items-center justify-center mb-6 transition-transform group-hover:scale-110 relative z-10">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+              <path d="M9 4H7C5.34 4 4 5.34 4 7V9C4 10.66 5.34 12 7 12H9C10.66 12 12 10.66 12 9V7C12 5.34 10.66 4 9 4Z" stroke="#0099CC" stroke-width="2"/>
+              <path d="M17 12H15C13.34 12 12 13.34 12 15V17C12 18.66 13.34 20 15 20H17C18.66 20 20 18.66 20 17V15C20 13.34 18.66 12 17 12Z" stroke="#0099CC" stroke-width="2"/>
+              <circle cx="8" cy="8" r="1.5" fill="#0099CC"/>
+              <circle cx="16" cy="16" r="1.5" fill="#0099CC"/>
+              <path d="M12 12L8 8M12 12L16 16" stroke="#0099CC" stroke-width="1.5"/>
+            </svg>
+          </div>
+          <div class="text-xs font-dm font-bold text-brand tracking-widest mb-2">STEP 02</div>
+          <h3 class="text-xl font-bold text-ink mb-3">데이터 분석</h3>
+          <p class="text-ink/60 leading-relaxed text-[15px]">
+            생활 패턴·이동 이력·사회적 평판을<br/>AI가 읽습니다
+          </p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="text-center group">
+          <div class="mx-auto w-24 h-24 rounded-full bg-white shadow-card flex items-center justify-center mb-6 transition-transform group-hover:scale-110 relative z-10">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+              <rect x="4" y="14" width="3" height="6" fill="#0099CC"/>
+              <rect x="10" y="9" width="3" height="11" fill="#0099CC"/>
+              <rect x="16" y="4" width="3" height="16" fill="#00C896"/>
+            </svg>
+          </div>
+          <div class="text-xs font-dm font-bold text-brand tracking-widest mb-2">STEP 03</div>
+          <h3 class="text-xl font-bold text-ink mb-3">점수 산출</h3>
+          <p class="text-ink/60 leading-relaxed text-[15px]">
+            <span class="text-brand font-semibold">72시간 안에</span><br/>
+            ARC Score가 만들어집니다
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Accordion -->
+    <div class="reveal mt-16 max-w-3xl mx-auto">
+      <button class="accordion w-full bg-white rounded-2xl shadow-sm border border-mist-2/60 overflow-hidden text-left">
+        <div class="flex items-center justify-between p-6">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path d="M12 8V12M12 16H12.01" stroke="#0099CC" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="12" cy="12" r="9" stroke="#0099CC" stroke-width="2"/>
+              </svg>
+            </div>
+            <span class="font-semibold text-ink">어떤 데이터가 수집되나요?</span>
+          </div>
+          <svg class="accordion-icon" width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M6 9L12 15L18 9" stroke="#1A202C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="accordion-content">
+          <div class="px-6 pb-6 pt-0 grid sm:grid-cols-2 gap-4 text-sm">
+            <div class="flex items-start gap-3 p-3 rounded-lg bg-mist">
+              <div class="w-2 h-2 rounded-full bg-brand mt-1.5"></div>
+              <div>
+                <div class="font-semibold text-ink mb-1">생활 패턴</div>
+                <div class="text-ink/60">기상·수면·이동 일정</div>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 p-3 rounded-lg bg-mist">
+              <div class="w-2 h-2 rounded-full bg-brand mt-1.5"></div>
+              <div>
+                <div class="font-semibold text-ink mb-1">소비 패턴</div>
+                <div class="text-ink/60">결제 카테고리와 정기성</div>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 p-3 rounded-lg bg-mist">
+              <div class="w-2 h-2 rounded-full bg-accent mt-1.5"></div>
+              <div>
+                <div class="font-semibold text-ink mb-1">사회적 평판</div>
+                <div class="text-ink/60">커뮤니티 활동·평점</div>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 p-3 rounded-lg bg-mist">
+              <div class="w-2 h-2 rounded-full bg-accent mt-1.5"></div>
+              <div>
+                <div class="font-semibold text-ink mb-1">플랫폼 활동</div>
+                <div class="text-ink/60">프리랜서·계약·고용 이력</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<!-- SECTION 04 — ARC SCORE                                 -->
+<!-- ====================================================== -->
+<section id="score" class="relative bg-navy text-white py-24 lg:py-32 overflow-hidden">
+  <div class="absolute inset-0 opacity-30 pointer-events-none">
+    <div class="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-brand/30 blur-3xl"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full bg-accent/20 blur-3xl"></div>
+  </div>
+
+  <div class="relative max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="reveal max-w-3xl">
+      <div class="section-label text-brand mb-4">ARC SCORE</div>
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight tracking-tight">
+        신용점수 하나로<br/>열리는 것들
+      </h2>
+      <p class="mt-6 text-lg text-white/60 leading-relaxed">
+        투명하게 공개된 산출 기준. <span class="text-accent font-semibold">누구도 억울하지 않은 점수</span>입니다.
+      </p>
+    </div>
+
+    <div class="reveal mt-16 grid lg:grid-cols-2 gap-10 items-start">
+      <!-- LEFT: Toggles + Donut -->
+      <div class="space-y-6">
+        <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-6 lg:p-8 border border-white/10">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="font-semibold text-lg">데이터 항목</h3>
+            <span class="text-xs font-dm text-white/50 tracking-widest">TOGGLE TO SIMULATE</span>
+          </div>
+          <div class="space-y-4" id="toggle-list">
+            <div class="flex items-center justify-between gap-4">
+              <span class="text-sm text-white/80">새벽 기상 및 규칙적 수면 패턴</span>
+              <div class="switch on" data-points="1200"></div>
+            </div>
+            <div class="flex items-center justify-between gap-4">
+              <span class="text-sm text-white/80">규칙적인 교통비 납부</span>
+              <div class="switch on" data-points="1500"></div>
+            </div>
+            <div class="flex items-center justify-between gap-4">
+              <span class="text-sm text-white/80">커뮤니티 참여도</span>
+              <div class="switch on" data-points="1100"></div>
+            </div>
+            <div class="flex items-center justify-between gap-4">
+              <span class="text-sm text-white/80">이동 국가 수</span>
+              <div class="switch" data-points="900"></div>
+            </div>
+            <div class="flex items-center justify-between gap-4">
+              <span class="text-sm text-white/80">정기 소비 패턴</span>
+              <div class="switch on" data-points="1358"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Donut chart -->
+        <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-6 lg:p-8 border border-white/10">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="font-semibold text-lg">구성 비율</h3>
+            <span class="text-xs font-dm text-white/50 tracking-widest">TRANSPARENCY</span>
+          </div>
+          <div class="flex flex-col sm:flex-row items-center gap-8">
+            <svg class="w-40 h-40 -rotate-90" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="14"/>
+              <!-- 25% Living -->
+              <circle id="seg1" class="donut-segment" cx="50" cy="50" r="40" fill="none" stroke="#0099CC" stroke-width="14" stroke-dasharray="0 251" stroke-linecap="butt"/>
+              <!-- 25% Travel offset 62.8 -->
+              <circle id="seg2" class="donut-segment" cx="50" cy="50" r="40" fill="none" stroke="#00C896" stroke-width="14" stroke-dasharray="0 251" stroke-dashoffset="-62.8" stroke-linecap="butt"/>
+              <!-- 15% Spending offset 125.6 -->
+              <circle id="seg3" class="donut-segment" cx="50" cy="50" r="40" fill="none" stroke="#7DD3FC" stroke-width="14" stroke-dasharray="0 251" stroke-dashoffset="-125.6" stroke-linecap="butt"/>
+              <!-- 15% Trust offset 163.4 -->
+              <circle id="seg4" class="donut-segment" cx="50" cy="50" r="40" fill="none" stroke="#A7F3D0" stroke-width="14" stroke-dasharray="0 251" stroke-dashoffset="-163.4" stroke-linecap="butt"/>
+              <!-- 20% Other offset 201.2 -->
+              <circle id="seg5" class="donut-segment" cx="50" cy="50" r="40" fill="none" stroke="#475569" stroke-width="14" stroke-dasharray="0 251" stroke-dashoffset="-201.2" stroke-linecap="butt"/>
+            </svg>
+            <div class="space-y-2 text-sm flex-1 w-full">
+              <div class="flex items-center justify-between"><span class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-brand"></span>생활 패턴</span><span class="font-dm font-semibold">25%</span></div>
+              <div class="flex items-center justify-between"><span class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-accent"></span>이동 이력</span><span class="font-dm font-semibold">25%</span></div>
+              <div class="flex items-center justify-between"><span class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm" style="background:#7DD3FC"></span>소비 패턴</span><span class="font-dm font-semibold">15%</span></div>
+              <div class="flex items-center justify-between"><span class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm" style="background:#A7F3D0"></span>사회적 평판</span><span class="font-dm font-semibold">15%</span></div>
+              <div class="flex items-center justify-between"><span class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm" style="background:#475569"></span>기타</span><span class="font-dm font-semibold">20%</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Score display + Benefits -->
+      <div class="space-y-6">
+        <!-- Big score -->
+        <div class="bg-gradient-to-br from-brand/20 to-accent/10 backdrop-blur-sm rounded-2xl p-8 border border-white/10 relative overflow-hidden">
+          <div class="absolute top-4 right-4 text-xs font-dm text-white/40 tracking-widest">YOUR ARC SCORE</div>
+          <div class="text-sm text-white/60 mb-2">현재 점수</div>
+          <div class="flex items-end gap-3">
+            <div id="score-num" class="text-7xl lg:text-8xl font-dm font-bold leading-none tracking-tight">6,058</div>
+            <div class="text-white/40 mb-3 text-sm">/ 6,600</div>
+          </div>
+          <!-- Bars -->
+          <div class="mt-8 flex items-end gap-2 h-20">
+            <div class="flex-1 bg-brand rounded-t" style="height:60%"></div>
+            <div class="flex-1 bg-brand rounded-t" style="height:75%"></div>
+            <div class="flex-1 bg-brand rounded-t" style="height:55%"></div>
+            <div class="flex-1 bg-accent rounded-t" style="height:90%"></div>
+            <div class="flex-1 bg-accent rounded-t" style="height:80%"></div>
+            <div class="flex-1 bg-brand rounded-t" style="height:70%"></div>
+            <div class="flex-1 bg-brand rounded-t" style="height:85%"></div>
+            <div class="flex-1 bg-accent rounded-t" style="height:95%"></div>
+          </div>
+          <div class="mt-3 flex justify-between text-[10px] font-dm text-white/40 uppercase tracking-widest">
+            <span>Mar</span><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span><span>Now</span>
+          </div>
+        </div>
+
+        <!-- Benefits grid -->
+        <div>
+          <h3 class="font-semibold mb-4 text-white/80">점수가 열어주는 것들</h3>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="bg-white/5 rounded-xl p-4 border border-white/10 flex flex-col gap-2">
+              <div class="flex items-center justify-between">
+                <span class="text-2xl">🏠</span>
+                <span class="text-[10px] font-dm font-bold text-accent">UNLOCKED</span>
+              </div>
+              <div class="text-sm font-semibold">주거</div>
+              <div class="text-xs text-white/50">임대 계약 · 코리빙</div>
+            </div>
+            <div class="bg-white/5 rounded-xl p-4 border border-white/10 flex flex-col gap-2">
+              <div class="flex items-center justify-between">
+                <span class="text-2xl">💳</span>
+                <span class="text-[10px] font-dm font-bold text-accent">UNLOCKED</span>
+              </div>
+              <div class="text-sm font-semibold">금융</div>
+              <div class="text-xs text-white/50">계좌 · 송금 · 대출</div>
+            </div>
+            <div class="bg-white/5 rounded-xl p-4 border border-white/10 flex flex-col gap-2">
+              <div class="flex items-center justify-between">
+                <span class="text-2xl">🛡️</span>
+                <span class="text-[10px] font-dm font-bold text-accent">UNLOCKED</span>
+              </div>
+              <div class="text-sm font-semibold">보험</div>
+              <div class="text-xs text-white/50">건강 · 여행 · 자산</div>
+            </div>
+            <div class="bg-white/5 rounded-xl p-4 border border-white/20 flex flex-col gap-2 opacity-60">
+              <div class="flex items-center justify-between">
+                <span class="text-2xl grayscale">📄</span>
+                <span class="text-[10px] font-dm font-bold text-white/40">LOCKED</span>
+              </div>
+              <div class="text-sm font-semibold">비자</div>
+              <div class="text-xs text-white/50">디지털 신원 증명</div>
+            </div>
+          </div>
+        </div>
+
+        <a href="#how" class="inline-flex items-center gap-2 text-brand hover:text-accent transition font-semibold">
+          내 점수의 근거 보기 <span>→</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<!-- SECTION 05 — FINANCIAL ECOSYSTEM                       -->
+<!-- ====================================================== -->
+<section id="ecosystem" class="bg-white py-24 lg:py-32">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="reveal max-w-3xl">
+      <div class="section-label text-brand mb-4">FINANCIAL ECOSYSTEM</div>
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight tracking-tight text-ink">
+        점수 하나로<br/>송금·환전·자산까지
+      </h2>
+      <p class="mt-6 text-lg text-ink/60 leading-relaxed">
+        신뢰가 증명된 사람에게 <span class="text-brand font-semibold">국경은 수수료가 되지 않습니다.</span>
+      </p>
+    </div>
+
+    <div class="reveal mt-16 grid lg:grid-cols-5 gap-10 items-start">
+      <!-- Left: slider -->
+      <div class="lg:col-span-2 sticky top-28">
+        <div class="bg-mist rounded-2xl p-8 border border-mist-2/60">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm text-ink/60">ARC Score를 조정해보세요</span>
+            <span class="text-xs font-dm text-ink/40 tracking-widest">TRY IT</span>
+          </div>
+          <div id="slider-value" class="text-5xl lg:text-6xl font-dm font-bold text-brand mb-4">600</div>
+          <input type="range" id="score-slider" min="0" max="1000" value="600" class="w-full !bg-mist-2"/>
+          <div class="flex justify-between text-xs font-dm text-ink/40 mt-2">
+            <span>0</span><span>500</span><span>1000</span>
+          </div>
+          <div class="mt-6 pt-6 border-t border-mist-2 text-sm text-ink/60 leading-relaxed">
+            ARC Score가 높아질수록 <strong class="text-ink">더 많은 기능이 열립니다.</strong>
+            300점에서 송금이, 500점에서 다통화 관리가, 700점에서 자산 어드바이스가 활성화됩니다.
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: feature cards -->
+      <div class="lg:col-span-3 space-y-4" id="feature-cards">
+        <!-- Feature 1 -->
+        <div class="feature-card unlocked rounded-2xl p-6 lg:p-8 bg-gradient-to-br from-brand to-brand-dark text-white" data-threshold="300">
+          <div class="flex items-start justify-between gap-4 mb-3">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl bg-white/15 flex items-center justify-center">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 12L21 12M21 12L15 6M21 12L15 18" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div>
+                <div class="text-xs font-dm tracking-widest opacity-70">FEATURE 01</div>
+                <h3 class="text-xl font-bold">국제 송금</h3>
+              </div>
+            </div>
+            <span class="lock-badge text-[10px] font-dm font-bold bg-white/20 px-2 py-1 rounded-full">UNLOCKED</span>
+          </div>
+          <p class="text-white/85 leading-relaxed pl-15">
+            "Score 600 이상이면 <strong>수수료 0%</strong>, 즉시 송금"
+          </p>
+          <div class="text-xs font-dm mt-4 opacity-70">Required Score · 300+</div>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="feature-card unlocked rounded-2xl p-6 lg:p-8 bg-mist border border-mist-2/60" data-threshold="500">
+          <div class="flex items-start justify-between gap-4 mb-3">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl bg-brand/10 flex items-center justify-center">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="9" stroke="#0099CC" stroke-width="2"/>
+                  <path d="M3 12H21M12 3C14.5 6 14.5 18 12 21M12 3C9.5 6 9.5 18 12 21" stroke="#0099CC" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div>
+                <div class="text-xs font-dm tracking-widest text-ink/40">FEATURE 02</div>
+                <h3 class="text-xl font-bold text-ink">다통화 관리</h3>
+              </div>
+            </div>
+            <span class="lock-badge text-[10px] font-dm font-bold bg-brand/10 text-brand px-2 py-1 rounded-full">UNLOCKED</span>
+          </div>
+          <p class="text-ink/70 leading-relaxed">
+            "원화·달러·유로·엔화를 <strong class="text-ink">하나의 지갑에서</strong>"
+          </p>
+          <div class="text-xs font-dm mt-4 text-ink/40">Required Score · 500+</div>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="feature-card locked rounded-2xl p-6 lg:p-8 bg-mist border border-mist-2/60" data-threshold="700">
+          <div class="flex items-start justify-between gap-4 mb-3">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl bg-ink/10 flex items-center justify-center">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <path d="M3 17L9 11L13 15L21 7" stroke="#1A202C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M14 7H21V14" stroke="#1A202C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div>
+                <div class="text-xs font-dm tracking-widest text-ink/40">FEATURE 03</div>
+                <h3 class="text-xl font-bold text-ink">자산 어드바이스</h3>
+              </div>
+            </div>
+            <span class="lock-badge flex items-center gap-1 text-[10px] font-dm font-bold bg-ink/10 text-ink/50 px-2 py-1 rounded-full">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="10" stroke="currentColor" stroke-width="2"/><path d="M8 11V7a4 4 0 018 0v4" stroke="currentColor" stroke-width="2"/></svg>
+              LOCKED
+            </span>
+          </div>
+          <p class="text-ink/70 leading-relaxed">
+            "내 이동 패턴에 맞는 <strong class="text-ink">최적 금융 상품</strong>을 추천합니다"
+          </p>
+          <div class="text-xs font-dm mt-4 text-ink/40">Required Score · 700+</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<!-- SECTION 05-1 — MULTI-CURRENCY WALLET                   -->
+<!-- ====================================================== -->
+<section id="wallet" class="bg-gradient-to-b from-white to-mist py-24 lg:py-32">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="reveal max-w-3xl">
+      <div class="section-label text-brand mb-4">MULTI-CURRENCY WALLET</div>
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight tracking-tight text-ink">
+        원화, 달러, 유로,<br/>엔화, 페소. 전부 ARC에서
+      </h2>
+      <p class="mt-6 text-lg text-ink/60 leading-relaxed">
+        어느 나라에 있든 하나의 지갑으로. <span class="text-brand font-semibold">환전 타이밍도 ARC가 알려드립니다.</span>
+      </p>
+    </div>
+
+    <div class="reveal mt-16 grid lg:grid-cols-2 gap-12 items-center">
+      <!-- Phone mockup with stacked currency cards -->
+      <div class="relative flex justify-center">
+        <div class="phone-frame w-[300px] sm:w-[340px]">
+          <div class="phone-screen aspect-[9/19] p-5 flex flex-col">
+            <div class="flex justify-between text-[10px] text-white/60 font-dm mb-4">
+              <span>9:41</span>
+              <span>72%</span>
+            </div>
+            <div class="text-white mb-4">
+              <div class="text-xs opacity-60 font-dm tracking-widest">TOTAL BALANCE</div>
+              <div class="text-3xl font-dm font-bold mt-1">$24,580.32</div>
+              <div class="text-xs text-accent font-dm mt-1">↑ 환율 호조 · USD ↑0.4%</div>
+            </div>
+
+            <!-- Currency cards stack -->
+            <div class="relative h-[360px]">
+              <div class="absolute top-0 left-0 right-0 rounded-2xl bg-gradient-to-br from-brand to-brand-dark p-4 transform rotate-[-2deg] shadow-xl">
+                <div class="flex justify-between items-start mb-6">
+                  <div>
+                    <div class="text-[10px] text-white/70 font-dm">KRW · 한국 원</div>
+                    <div class="text-xl font-dm font-bold text-white mt-1">₩2,840,000</div>
+                  </div>
+                  <span class="text-2xl">🇰🇷</span>
+                </div>
+                <div class="text-[10px] text-white/60 font-dm">**** 8847</div>
+              </div>
+              <div class="absolute top-16 left-0 right-0 rounded-2xl bg-gradient-to-br from-accent to-emerald-700 p-4 transform rotate-[1deg] shadow-xl">
+                <div class="flex justify-between items-start mb-6">
+                  <div>
+                    <div class="text-[10px] text-white/70 font-dm">USD · 미국 달러</div>
+                    <div class="text-xl font-dm font-bold text-white mt-1">$8,420.50</div>
+                  </div>
+                  <span class="text-2xl">🇺🇸</span>
+                </div>
+                <div class="text-[10px] text-white/60 font-dm">**** 8847</div>
+              </div>
+              <div class="absolute top-32 left-0 right-0 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-700 p-4 transform rotate-[-1deg] shadow-xl">
+                <div class="flex justify-between items-start mb-6">
+                  <div>
+                    <div class="text-[10px] text-white/70 font-dm">EUR · 유로</div>
+                    <div class="text-xl font-dm font-bold text-white mt-1">€6,180.00</div>
+                  </div>
+                  <span class="text-2xl">🇪🇺</span>
+                </div>
+                <div class="text-[10px] text-white/60 font-dm">**** 8847</div>
+              </div>
+              <div class="absolute top-48 left-0 right-0 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 p-4 transform rotate-[2deg] shadow-xl">
+                <div class="flex justify-between items-start mb-6">
+                  <div>
+                    <div class="text-[10px] text-white/70 font-dm">JPY · 일본 엔</div>
+                    <div class="text-xl font-dm font-bold text-white mt-1">¥548,200</div>
+                  </div>
+                  <span class="text-2xl">🇯🇵</span>
+                </div>
+                <div class="text-[10px] text-white/60 font-dm">**** 8847</div>
+              </div>
+            </div>
+
+            <div class="mt-4 bg-white/5 backdrop-blur-sm rounded-xl p-3 border border-white/10 animate-pulse-soft">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">💡</span>
+                <div class="flex-1">
+                  <div class="text-[10px] text-accent font-dm font-bold">환율 알림</div>
+                  <div class="text-xs text-white/80">"지금 달러로 바꾸세요 ↑"</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-8">
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div class="bg-white rounded-xl p-5 border border-mist-2/60 hover:shadow-card transition">
+            <div class="text-2xl mb-2">🌍</div>
+            <h4 class="font-bold text-ink mb-1">멀티커런시 보유</h4>
+            <p class="text-xs text-ink/60 leading-relaxed">135개 통화를 하나의 계좌에서 동시 보유. 환전 없이 즉시 결제</p>
+          </div>
+          <div class="bg-white rounded-xl p-5 border border-mist-2/60 hover:shadow-card transition">
+            <div class="text-2xl mb-2">⚡</div>
+            <h4 class="font-bold text-ink mb-1">실시간 환율 변환</h4>
+            <p class="text-xs text-ink/60 leading-relaxed">숨겨진 마진 0%. 미드마켓 레이트 그대로 적용</p>
+          </div>
+          <div class="bg-white rounded-xl p-5 border border-mist-2/60 hover:shadow-card transition">
+            <div class="text-2xl mb-2">🔔</div>
+            <h4 class="font-bold text-ink mb-1">환전 타이밍 알림</h4>
+            <p class="text-xs text-ink/60 leading-relaxed">소비 패턴·이동 일정 분석 후 최적 시점 추천</p>
+          </div>
+          <div class="bg-white rounded-xl p-5 border border-mist-2/60 hover:shadow-card transition">
+            <div class="text-2xl mb-2">🚀</div>
+            <h4 class="font-bold text-ink mb-1">즉시 송금</h4>
+            <p class="text-xs text-ink/60 leading-relaxed">ARC Score 기반 수수료 0% 송금</p>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl overflow-hidden border border-mist-2/60 shadow-card">
+          <div class="grid grid-cols-3 bg-ink text-white">
+            <div class="p-4 text-xs font-dm font-semibold tracking-widest text-white/60">METRIC</div>
+            <div class="p-4 text-xs font-dm font-semibold tracking-widest text-white/40 text-center">기존 방식</div>
+            <div class="p-4 text-xs font-dm font-semibold tracking-widest text-accent text-center">ARC</div>
+          </div>
+          <div class="divide-y divide-mist-2">
+            <div class="grid grid-cols-3 items-center compare-row">
+              <div class="p-4 text-sm text-ink/70">송금 시간</div>
+              <div class="p-4 text-sm text-ink/40 text-center line-through">평균 3일</div>
+              <div class="p-4 text-sm font-bold text-brand text-center">즉시 (실시간)</div>
+            </div>
+            <div class="grid grid-cols-3 items-center compare-row">
+              <div class="p-4 text-sm text-ink/70">송금 수수료</div>
+              <div class="p-4 text-sm text-ink/40 text-center line-through">평균 5%</div>
+              <div class="p-4 text-sm font-bold text-brand text-center">0%</div>
+            </div>
+            <div class="grid grid-cols-3 items-center compare-row">
+              <div class="p-4 text-sm text-ink/70">지원 통화</div>
+              <div class="p-4 text-sm text-ink/40 text-center line-through">10개 미만</div>
+              <div class="p-4 text-sm font-bold text-brand text-center">135개국</div>
+            </div>
+            <div class="grid grid-cols-3 items-center compare-row">
+              <div class="p-4 text-sm text-ink/70">환율 마진</div>
+              <div class="p-4 text-sm text-ink/40 text-center line-through">2-4%</div>
+              <div class="p-4 text-sm font-bold text-brand text-center">0%</div>
+            </div>
+            <div class="grid grid-cols-3 items-center compare-row">
+              <div class="p-4 text-sm text-ink/70">최소 송금액</div>
+              <div class="p-4 text-sm text-ink/40 text-center line-through">제한 있음</div>
+              <div class="p-4 text-sm font-bold text-brand text-center">제한 없음</div>
+            </div>
+          </div>
+        </div>
+
+        <a href="#cta-final" class="btn-primary">송금 시작하기 <span class="arrow">→</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<!-- SECTION 06 — WHY ARC (Compare)                         -->
+<!-- ====================================================== -->
+<section id="why" class="bg-mist py-24 lg:py-32">
+  <div class="max-w-5xl mx-auto px-6 lg:px-10">
+    <div class="reveal text-center max-w-3xl mx-auto">
+      <div class="section-label text-brand mb-4">WHY ARC</div>
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight tracking-tight text-ink">
+        껍데기 잔고 증명의<br/>시대는 끝났습니다
+      </h2>
+      <p class="mt-6 text-lg text-ink/60">기다림의 비용을 계산해보세요.</p>
+    </div>
+
+    <div class="reveal mt-16 bg-white rounded-2xl overflow-hidden shadow-card">
+      <div class="grid grid-cols-3 bg-ink">
+        <div class="p-6 text-xs font-dm font-semibold tracking-widest text-white/60">CATEGORY</div>
+        <div class="p-6 text-xs font-dm font-semibold tracking-widest text-white/40 text-center border-l border-white/10">기존 방식</div>
+        <div class="p-6 text-xs font-dm font-semibold tracking-widest text-accent text-center border-l border-white/10">ARC</div>
+      </div>
+      <div class="divide-y divide-mist-2">
+        <div class="grid grid-cols-3 compare-row items-center">
+          <div class="p-6 text-sm font-medium text-ink">증명 방식</div>
+          <div class="p-6 text-sm text-ink/40 text-center">잔고·서류 기반</div>
+          <div class="p-6 text-sm font-bold text-brand text-center">삶의 궤적으로 증명</div>
+        </div>
+        <div class="grid grid-cols-3 compare-row items-center">
+          <div class="p-6 text-sm font-medium text-ink">계좌 개설</div>
+          <div class="p-6 text-sm text-ink/40 text-center">평균 3-6개월</div>
+          <div class="p-6 text-sm font-bold text-brand text-center"><span class="count-up" data-target="72">0</span>시간 이내</div>
+        </div>
+        <div class="grid grid-cols-3 compare-row items-center">
+          <div class="p-6 text-sm font-medium text-ink">송금 수수료</div>
+          <div class="p-6 text-sm text-ink/40 text-center">평균 5%</div>
+          <div class="p-6 text-sm font-bold text-brand text-center"><span class="count-up" data-target="0">0</span>%</div>
+        </div>
+        <div class="grid grid-cols-3 compare-row items-center">
+          <div class="p-6 text-sm font-medium text-ink">국경 이동 시 신용</div>
+          <div class="p-6 text-sm text-ink/40 text-center">초기화</div>
+          <div class="p-6 text-sm font-bold text-brand text-center">누적 유지</div>
+        </div>
+        <div class="grid grid-cols-3 compare-row items-center">
+          <div class="p-6 text-sm font-medium text-ink">증빙 주기</div>
+          <div class="p-6 text-sm text-ink/40 text-center">매번 반복</div>
+          <div class="p-6 text-sm font-bold text-brand text-center">한 번으로 영구 유지</div>
+        </div>
+        <div class="grid grid-cols-3 compare-row items-center">
+          <div class="p-6 text-sm font-medium text-ink">평가 기준</div>
+          <div class="p-6 text-sm text-ink/40 text-center">금융 거래 이력</div>
+          <div class="p-6 text-sm font-bold text-brand text-center">생활 패턴·평판 기반</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<!-- SECTION 07 — TRUST & CREDENTIALS                       -->
+<!-- ====================================================== -->
+<section id="trust" class="bg-white py-24 lg:py-32 overflow-hidden">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="reveal text-center max-w-3xl mx-auto">
+      <div class="section-label text-brand mb-4">TRUST &amp; CREDENTIALS</div>
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight tracking-tight text-ink">
+        ARC가 실제로 통하는 이유
+      </h2>
+      <p class="mt-6 text-lg text-ink/60">
+        선언이 아닌 <span class="text-brand font-semibold">협약으로 증명</span>합니다.
+      </p>
+    </div>
+
+    <div class="reveal mt-16 text-center">
+      <div class="inline-flex items-baseline gap-3">
+        <span class="count-up text-6xl lg:text-7xl font-dm font-bold text-brand" data-target="380">0</span>
+        <span class="text-3xl lg:text-4xl font-dm font-bold text-brand">+</span>
+      </div>
+      <div class="mt-3 text-ink/60">금융기관 · 임대사 · 보험사와 협약</div>
+    </div>
+
+    <div class="reveal mt-16 marquee-mask">
+      <div class="marquee-track gap-12">
+        <div class="flex items-center gap-12 shrink-0">
+          <div class="h-12 w-32 bg-mist rounded-lg flex items-center justify-center font-dm font-bold text-ink/40">FINTECH CO</div>
+          <div class="h-12 w-32 bg-mist rounded-lg flex items-center justify-center font-dm font-bold text-ink/40">RENT+</div>
+          <div class="h-12 w-32 bg-mist rounded-lg flex items-center justify-center font-dm font-bold text-ink/40">ENCO STAY</div>
+          <div class="h-12 w-32 bg-mist rounded-lg flex items-center justify-center font-dm font-bold text-ink/40">WISE</div>
+          <div class="h-12 w-32 bg-mist rounded-lg flex items-center justify-center font-dm font-bold text-ink/40">REVOLUT</div>
+          <div class="h-12 w-32 bg-mist rounded-lg flex items-center justify-center font-dm font-bold text-ink/40">N26 BANK</div>
+          <div class="h-12 w-32 bg-mist rounded-lg flex items-center justify-center font-dm font-bold text-ink/40">SAFETY+</div>
+          <div class="h-12 w-32 bg-mist rounded-lg flex items-center justify-center font-dm font-bold text-ink/40">NOMAD HUB</div>
+          <div class="h-12 w-32 bg-mist rounded-lg flex items-center justify-center font-dm font-bold text-ink/40">STRIPE T.</div>
+          <div class="h-12 w-32 bg-mist rounded-lg flex items-center justify-center font-dm font-bold text-ink/40">SELINA</div>
+          <div class="h-12 w-32 bg-mist rounded-lg flex items-center justify-center font-dm font-bold text-ink/40">KARAT</div>
+          <div class="h-12 w-32 bg-mist rounded-lg flex items-center justify-center font-dm font-bold text-ink/40">MONZO</div>
+        </div>
+        <div class="flex items-center gap-12 shrink-0" aria-hidden="true">
+          <div class="h-12 w-32 bg-mist rounded-lg flex items-center justify-center font-dm font-bold text-ink/40">FINTECH CO</div>
+          <div class="h-12 w-32 bg-mist rounded-lg flex items-center justify-center font-dm font-bold text-ink/40">RENT+</div>
+          <div class="h-12 w-32 bg-mist rounded-lg flex items-center justify-center font-dm font-bold text-ink/40">ENCO STAY</div>
+          <div class="h-12 w-32 bg-mist rounded-lg flex items-center justify-center font-dm font-bold text-ink/40">WISE</div>
+          <div class="h-12 w-32 bg-mist rounded-lg flex items-center justify-center font-dm font-bold text-ink/40">REVOLUT</div>
+          <div class="h-12 w-32 bg-mist rounded-lg flex items-center justify-center font-dm font-bold text-ink/40">N26 BANK</div>
+          <div class="h-12 w-32 bg-mist rounded-lg flex items-center justify-center font-dm font-bold text-ink/40">SAFETY+</div>
+          <div class="h-12 w-32 bg-mist rounded-lg flex items-center justify-center font-dm font-bold text-ink/40">NOMAD HUB</div>
+          <div class="h-12 w-32 bg-mist rounded-lg flex items-center justify-center font-dm font-bold text-ink/40">STRIPE T.</div>
+          <div class="h-12 w-32 bg-mist rounded-lg flex items-center justify-center font-dm font-bold text-ink/40">SELINA</div>
+          <div class="h-12 w-32 bg-mist rounded-lg flex items-center justify-center font-dm font-bold text-ink/40">KARAT</div>
+          <div class="h-12 w-32 bg-mist rounded-lg flex items-center justify-center font-dm font-bold text-ink/40">MONZO</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal mt-20 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-mist rounded-2xl p-6 text-center hover:shadow-card transition">
+        <div class="w-14 h-14 mx-auto rounded-full bg-brand/10 flex items-center justify-center mb-4">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L4 6V12C4 16.97 7.5 21 12 22C16.5 21 20 16.97 20 12V6L12 2Z" stroke="#0099CC" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M9 12L11 14L15 10" stroke="#0099CC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h4 class="font-bold text-ink mb-1">금융 당국 정식 등록</h4>
+        <div class="text-xs text-ink/50 font-dm">KFTC · FSC</div>
+      </div>
+      <div class="bg-mist rounded-2xl p-6 text-center hover:shadow-card transition">
+        <div class="w-14 h-14 mx-auto rounded-full bg-brand/10 flex items-center justify-center mb-4">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="11" width="18" height="11" stroke="#0099CC" stroke-width="2"/>
+            <path d="M7 11V7a5 5 0 0110 0v4" stroke="#0099CC" stroke-width="2"/>
+          </svg>
+        </div>
+        <h4 class="font-bold text-ink mb-1">ISO 27001</h4>
+        <div class="text-xs text-ink/50 font-dm">정보보안 인증</div>
+      </div>
+      <div class="bg-mist rounded-2xl p-6 text-center hover:shadow-card transition">
+        <div class="w-14 h-14 mx-auto rounded-full bg-brand/10 flex items-center justify-center mb-4">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9" stroke="#0099CC" stroke-width="2"/>
+            <path d="M12 7V12L15 15" stroke="#0099CC" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h4 class="font-bold text-ink mb-1">GDPR 준수</h4>
+        <div class="text-xs text-ink/50 font-dm">개인정보 보호</div>
+      </div>
+      <div class="bg-mist rounded-2xl p-6 text-center hover:shadow-card transition">
+        <div class="w-14 h-14 mx-auto rounded-full bg-brand/10 flex items-center justify-center mb-4">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M9 12L11 14L15 10" stroke="#0099CC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="12" r="9" stroke="#0099CC" stroke-width="2"/>
+          </svg>
+        </div>
+        <h4 class="font-bold text-ink mb-1">SOC 2 Type II</h4>
+        <div class="text-xs text-ink/50 font-dm">감사 완료</div>
+      </div>
+    </div>
+
+    <div class="reveal mt-12 text-center">
+      <a href="#" class="inline-flex items-center gap-2 text-brand hover:text-accent transition font-semibold">
+        파트너 전체 보기 <span>→</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<!-- SECTION 08 — TESTIMONIALS                              -->
+<!-- ====================================================== -->
+<section id="testimonials" class="bg-navy text-white py-24 lg:py-32 overflow-hidden">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="reveal text-center max-w-3xl mx-auto">
+      <div class="section-label text-brand mb-4">TESTIMONIALS</div>
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight tracking-tight">
+        나의 성실함이<br/>
+        <span class="bg-gradient-to-r from-brand to-accent bg-clip-text text-transparent">전 세계 어디서나 인정받는</span> 경험
+      </h2>
+    </div>
+
+    <!-- Stats banner -->
+    <div class="reveal mt-16 grid sm:grid-cols-3 gap-6">
+      <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 text-center">
+        <div class="flex items-baseline justify-center gap-1">
+          <span class="count-up text-5xl lg:text-6xl font-dm font-bold text-white" data-target="120">0</span>
+          <span class="text-3xl lg:text-4xl font-dm font-bold text-white">K</span>
+        </div>
+        <div class="mt-3 text-sm text-white/60">글로벌 유저</div>
+      </div>
+      <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 text-center">
+        <div class="flex items-baseline justify-center gap-1">
+          <span class="count-up text-5xl lg:text-6xl font-dm font-bold text-white" data-target="380">0</span>
+          <span class="text-3xl lg:text-4xl font-dm font-bold text-white">+</span>
+        </div>
+        <div class="mt-3 text-sm text-white/60">파트너사</div>
+      </div>
+      <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 text-center">
+        <div class="flex items-baseline justify-center gap-1">
+          <span class="count-up text-5xl lg:text-6xl font-dm font-bold text-white" data-target="95">0</span>
+          <span class="text-3xl lg:text-4xl font-dm font-bold text-white">%</span>
+        </div>
+        <div class="mt-3 text-sm text-white/60">72시간 내 금융 해결</div>
+      </div>
+    </div>
+
+    <!-- City tabs -->
+    <div class="reveal mt-16 flex justify-center gap-2 flex-wrap">
+      <button class="city-tab active px-5 py-2 rounded-full border border-white/15 text-sm font-medium transition" data-city="berlin">베를린</button>
+      <button class="city-tab px-5 py-2 rounded-full border border-white/15 text-sm font-medium transition" data-city="seoul">서울</button>
+      <button class="city-tab px-5 py-2 rounded-full border border-white/15 text-sm font-medium transition" data-city="tokyo">도쿄</button>
+    </div>
+
+    <!-- Testimonial cards -->
+    <div class="reveal mt-12 grid md:grid-cols-3 gap-6">
+      <!-- Card 1 -->
+      <div class="bg-white/[0.07] backdrop-blur-md border border-white/10 rounded-2xl p-8 hover:bg-white/[0.10] transition">
+        <div class="flex items-center gap-4 mb-6">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-brand to-accent flex items-center justify-center font-dm font-bold text-white">M</div>
+          <div>
+            <div class="font-semibold">미카</div>
+            <div class="text-xs text-white/50 font-dm">JP → DE · 프리랜서</div>
+          </div>
+        </div>
+        <svg class="opacity-30 mb-4" width="28" height="20" viewBox="0 0 28 20" fill="none">
+          <path d="M0 20V12C0 6.5 3 2 9 0L11 4C7 5.5 5.5 8 5.5 11H10V20H0ZM17 20V12C17 6.5 20 2 26 0L28 4C24 5.5 22.5 8 22.5 11H27V20H17Z" fill="white"/>
+        </svg>
+        <p class="text-white/85 leading-relaxed">
+          입국 이틀 만에 집 계약 완료했습니다. <span class="text-accent font-semibold">계좌도 없이 왔는데요.</span>
+        </p>
+      </div>
+      <!-- Card 2 -->
+      <div class="bg-white/[0.07] backdrop-blur-md border border-white/10 rounded-2xl p-8 hover:bg-white/[0.10] transition md:translate-y-6">
+        <div class="flex items-center gap-4 mb-6">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-accent to-brand flex items-center justify-center font-dm font-bold text-white">P</div>
+          <div>
+            <div class="font-semibold">박현우</div>
+            <div class="text-xs text-white/50 font-dm">KR → CA · 계약직</div>
+          </div>
+        </div>
+        <svg class="opacity-30 mb-4" width="28" height="20" viewBox="0 0 28 20" fill="none">
+          <path d="M0 20V12C0 6.5 3 2 9 0L11 4C7 5.5 5.5 8 5.5 11H10V20H0ZM17 20V12C17 6.5 20 2 26 0L28 4C24 5.5 22.5 8 22.5 11H27V20H17Z" fill="white"/>
+        </svg>
+        <p class="text-white/85 leading-relaxed">
+          현금 3배 요구 대신 <span class="text-accent font-semibold">ARC Score 하나로 끝냈어요.</span>
+        </p>
+      </div>
+      <!-- Card 3 -->
+      <div class="bg-white/[0.07] backdrop-blur-md border border-white/10 rounded-2xl p-8 hover:bg-white/[0.10] transition">
+        <div class="flex items-center gap-4 mb-6">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-brand flex items-center justify-center font-dm font-bold text-white">S</div>
+          <div>
+            <div class="font-semibold">시미즈 하나</div>
+            <div class="text-xs text-white/50 font-dm">JP → KR · 계약직</div>
+          </div>
+        </div>
+        <svg class="opacity-30 mb-4" width="28" height="20" viewBox="0 0 28 20" fill="none">
+          <path d="M0 20V12C0 6.5 3 2 9 0L11 4C7 5.5 5.5 8 5.5 11H10V20H0ZM17 20V12C17 6.5 20 2 26 0L28 4C24 5.5 22.5 8 22.5 11H27V20H17Z" fill="white"/>
+        </svg>
+        <p class="text-white/85 leading-relaxed">
+          영원히 증빙해야 했던 삶에서 <span class="text-accent font-semibold">처음으로 해방된 느낌</span>입니다.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<!-- SECTION 09 — PRICING                                   -->
+<!-- ====================================================== -->
+<section id="pricing" class="bg-white py-24 lg:py-32">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="reveal text-center max-w-3xl mx-auto">
+      <div class="section-label text-brand mb-4">PRICING</div>
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight tracking-tight text-ink">
+        당신의 점수만큼,<br/>딱 맞게 냅니다
+      </h2>
+      <p class="mt-6 text-lg text-ink/60">첫 ARC Score 산출은 <span class="text-brand font-semibold">무료</span>입니다.</p>
+    </div>
+
+    <!-- Toggle -->
+    <div class="reveal mt-12 flex justify-center items-center gap-3">
+      <span id="bill-monthly-label" class="text-sm font-semibold text-ink">월간</span>
+      <button id="billing-toggle" class="relative w-14 h-7 rounded-full bg-brand transition" aria-label="Toggle billing">
+        <span id="billing-dot" class="absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white transition-transform shadow"></span>
+      </button>
+      <span id="bill-annual-label" class="text-sm font-semibold text-ink/40">연간</span>
+      <span id="annual-badge" class="hidden text-xs font-dm font-bold bg-accent/15 text-accent px-3 py-1 rounded-full ml-2">2개월 무료</span>
+    </div>
+
+    <!-- Plan cards -->
+    <div class="reveal mt-12 grid md:grid-cols-3 gap-6">
+      <!-- Basic -->
+      <div class="price-card bg-white border border-mist-2/80 rounded-2xl p-8 flex flex-col">
+        <div class="text-xs font-dm font-semibold tracking-widest text-ink/50 mb-2">BASIC</div>
+        <h3 class="text-2xl font-bold text-ink">무료</h3>
+        <div class="mt-1 text-sm text-ink/60">시작해보고 싶다면</div>
+        <div class="mt-6 mb-6 border-t border-mist-2"></div>
+        <ul class="space-y-3 text-sm flex-1">
+          <li class="flex items-start gap-3"><span class="text-brand mt-0.5">✓</span><span class="text-ink/80">ARC Score 1회 산출</span></li>
+          <li class="flex items-start gap-3"><span class="text-brand mt-0.5">✓</span><span class="text-ink/80">기본 금융 안내</span></li>
+          <li class="flex items-start gap-3"><span class="text-ink/30 mt-0.5">—</span><span class="text-ink/40">송금 기능 제외</span></li>
+          <li class="flex items-start gap-3"><span class="text-ink/30 mt-0.5">—</span><span class="text-ink/40">자산 어드바이스 제외</span></li>
+        </ul>
+        <button class="mt-8 w-full py-3 rounded-full border-2 border-ink/15 hover:border-brand hover:text-brand transition font-semibold text-ink">무료로 시작</button>
+      </div>
+
+      <!-- Standard (Featured) -->
+      <div class="price-card featured relative bg-gradient-to-br from-brand to-brand-dark text-white rounded-2xl p-8 flex flex-col shadow-glow">
+        <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-white text-xs font-dm font-bold px-4 py-1 rounded-full tracking-widest">
+          가장 인기
+        </div>
+        <div class="text-xs font-dm font-semibold tracking-widest text-white/70 mb-2">STANDARD</div>
+        <div class="flex items-baseline gap-1">
+          <span class="text-3xl font-dm font-bold price-value" data-monthly="12,900" data-annual="129,000">₩12,900</span>
+          <span class="text-sm text-white/70 price-period">/월</span>
+        </div>
+        <div class="mt-1 text-sm text-white/70">대부분의 글로벌 워커에게</div>
+        <div class="mt-6 mb-6 border-t border-white/20"></div>
+        <ul class="space-y-3 text-sm flex-1">
+          <li class="flex items-start gap-3"><span class="text-white mt-0.5">✓</span><span>무제한 Score 갱신</span></li>
+          <li class="flex items-start gap-3"><span class="text-white mt-0.5">✓</span><span>다통화 지갑 (135개국)</span></li>
+          <li class="flex items-start gap-3"><span class="text-white mt-0.5">✓</span><span>국제 송금 수수료 0%</span></li>
+          <li class="flex items-start gap-3"><span class="text-white mt-0.5">✓</span><span>환율 알림</span></li>
+        </ul>
+        <button class="mt-8 w-full py-3 rounded-full bg-white text-brand hover:bg-mist transition font-bold">Standard 시작</button>
+      </div>
+
+      <!-- Platform -->
+      <div class="price-card bg-white border border-mist-2/80 rounded-2xl p-8 flex flex-col">
+        <div class="text-xs font-dm font-semibold tracking-widest text-ink/50 mb-2">PLATFORM</div>
+        <div class="flex items-baseline gap-1">
+          <span class="text-3xl font-dm font-bold text-ink price-value" data-monthly="29,900" data-annual="299,000">₩29,900</span>
+          <span class="text-sm text-ink/50 price-period">/월</span>
+        </div>
+        <div class="mt-1 text-sm text-ink/60">고도화된 자산 관리</div>
+        <div class="mt-6 mb-6 border-t border-mist-2"></div>
+        <ul class="space-y-3 text-sm flex-1">
+          <li class="flex items-start gap-3"><span class="text-brand mt-0.5">✓</span><span class="text-ink/80">Standard 전체 기능</span></li>
+          <li class="flex items-start gap-3"><span class="text-brand mt-0.5">✓</span><span class="text-ink/80">자산 어드바이스 (AI)</span></li>
+          <li class="flex items-start gap-3"><span class="text-brand mt-0.5">✓</span><span class="text-ink/80">우선 고객 지원</span></li>
+          <li class="flex items-start gap-3"><span class="text-brand mt-0.5">✓</span><span class="text-ink/80">전용 매니저 매칭</span></li>
+        </ul>
+        <button class="mt-8 w-full py-3 rounded-full bg-ink text-white hover:bg-ink/90 transition font-semibold">Platform 시작</button>
+      </div>
+    </div>
+
+    <p class="reveal text-center mt-10 text-sm text-ink/50">
+      "구독"이 아닌 <span class="text-ink font-semibold">"연간 멤버십"</span>입니다 · 언제든 해지 가능
+    </p>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<!-- SECTION 10 — FINAL CTA                                 -->
+<!-- ====================================================== -->
+<section id="cta-final" class="relative bg-navy text-white py-24 lg:py-32 overflow-hidden">
+  <canvas id="particles-final"></canvas>
+
+  <div class="absolute inset-0 opacity-30 pointer-events-none">
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-brand/20 blur-3xl"></div>
+  </div>
+
+  <div class="relative max-w-4xl mx-auto px-6 lg:px-10 text-center">
+    <h2 class="reveal text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight tracking-tight">
+      이제 국경 없는 금융을<br/>시작해보세요
+    </h2>
+    <p class="reveal reveal-delay-1 mt-8 text-lg lg:text-xl text-white/70 leading-relaxed">
+      지금 가입하면 첫 ARC Score 산출이 무료입니다.<br/>
+      <span class="text-accent font-semibold">72시간 후, 달라진 금융이 시작됩니다.</span>
+    </p>
+    <div class="reveal reveal-delay-2 mt-12">
+      <a href="#" id="final-cta-btn" class="inline-flex items-center gap-2 bg-white text-navy px-10 py-5 rounded-full font-bold text-lg hover:bg-brand hover:text-white transition-all duration-300 animate-pulse-soft">
+        1분 만에 내 점수 확인하기 <span class="arrow text-2xl">→</span>
+      </a>
+    </div>
+    <div class="reveal reveal-delay-3 mt-10 flex flex-wrap justify-center gap-6 text-sm text-white/60">
+      <div class="flex items-center gap-2">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 12L11 14L15 10" stroke="#00C896" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="9" stroke="#00C896" stroke-width="2"/></svg>
+        가입 후 72시간 내 점수 산출
+      </div>
+      <div class="flex items-center gap-2">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 12L11 14L15 10" stroke="#00C896" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="9" stroke="#00C896" stroke-width="2"/></svg>
+        언제든 해지 가능
+      </div>
+      <div class="flex items-center gap-2">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 12L11 14L15 10" stroke="#00C896" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="9" stroke="#00C896" stroke-width="2"/></svg>
+        첫 Score 산출 무료
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<!-- FOOTER                                                  -->
+<!-- ====================================================== -->
+<footer class="bg-navy-2 text-white/60 py-12 border-t border-white/10">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="grid md:grid-cols-4 gap-8 pb-10 border-b border-white/10">
+      <div>
+        <div class="flex items-center gap-2 text-white font-dm font-bold text-2xl mb-4">
+          <span class="inline-block w-7 h-7 rounded-full bg-gradient-to-br from-brand to-accent"></span>
+          ARC
+        </div>
+        <p class="text-sm leading-relaxed">국경을 넘어도 사라지지 않는 신뢰. 흩어진 삶을 하나의 점수로.</p>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold mb-4 text-sm">Product</h4>
+        <ul class="space-y-2 text-sm">
+          <li><a href="#how" class="hover:text-white transition">How It Works</a></li>
+          <li><a href="#score" class="hover:text-white transition">ARC Score</a></li>
+          <li><a href="#wallet" class="hover:text-white transition">Multi-Currency</a></li>
+          <li><a href="#pricing" class="hover:text-white transition">Pricing</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold mb-4 text-sm">Company</h4>
+        <ul class="space-y-2 text-sm">
+          <li><a href="#" class="hover:text-white transition">About</a></li>
+          <li><a href="#trust" class="hover:text-white transition">Partners</a></li>
+          <li><a href="#" class="hover:text-white transition">Press</a></li>
+          <li><a href="#" class="hover:text-white transition">Careers</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold mb-4 text-sm">Legal</h4>
+        <ul class="space-y-2 text-sm">
+          <li><a href="#" class="hover:text-white transition">Privacy Policy</a></li>
+          <li><a href="#" class="hover:text-white transition">Terms of Service</a></li>
+          <li><a href="#" class="hover:text-white transition">Security</a></li>
+          <li><a href="#" class="hover:text-white transition">Compliance</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs">
+      <div>© 2025 NomadPay · 기업적 디자인 스튜디오(3) · 홍익대학교 시각디자인학과</div>
+      <div class="flex gap-4">
+        <span>KFTC 등록 No. 2025-0042</span>
+        <span>·</span>
+        <span>ISO 27001</span>
+        <span>·</span>
+        <span>SOC 2 Type II</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ====================================================== -->
+<!-- SCRIPTS                                                -->
+<!-- ====================================================== -->
+<script>
+// ============== Reveal on scroll ==============
+const revealEls = document.querySelectorAll('.reveal');
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('is-visible');
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+revealEls.forEach(el => revealObserver.observe(el));
+
+// ============== Sticky nav background on scroll ==============
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 50) {
+    nav.classList.add('nav-scrolled');
+  } else {
+    nav.classList.remove('nav-scrolled');
+  }
+});
+
+// ============== Hamburger mobile menu ==============
+const hamburger = document.getElementById('hamburger');
+const mobileMenu = document.getElementById('mobile-menu');
+hamburger?.addEventListener('click', () => {
+  mobileMenu.classList.toggle('hidden');
+});
+
+// ============== Language toggle ==============
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const lang = btn.dataset.lang;
+    document.querySelectorAll('.lang-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.lang === lang);
+    });
+    try { localStorage.setItem('arc-lang', lang); } catch(e) {}
+  });
+});
+try {
+  const savedLang = localStorage.getItem('arc-lang');
+  if (savedLang) {
+    document.querySelectorAll('.lang-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.lang === savedLang);
+    });
+  }
+} catch(e) {}
+
+// ============== Hero score count-up ==============
+function countUp(el, target, duration = 1500) {
+  const start = performance.now();
+  const startVal = 0;
+  const animate = (now) => {
+    const t = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - t, 3); // ease-out cubic
+    const value = Math.floor(startVal + (target - startVal) * eased);
+    el.textContent = value.toLocaleString();
+    if (t < 1) requestAnimationFrame(animate);
+    else el.textContent = target.toLocaleString();
+  };
+  requestAnimationFrame(animate);
+}
+const heroScore = document.getElementById('hero-score');
+const heroBar = document.getElementById('hero-bar');
+setTimeout(() => {
+  countUp(heroScore, 6058, 1800);
+  if (heroBar) heroBar.style.width = '92%';
+}, 600);
+
+// ============== Generic count-up observer (.count-up) ==============
+const countObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const el = entry.target;
+      const target = parseInt(el.dataset.target, 10);
+      countUp(el, target, 1400);
+      countObserver.unobserve(el);
+    }
+  });
+}, { threshold: 0.4 });
+document.querySelectorAll('.count-up').forEach(el => countObserver.observe(el));
+
+// ============== Particles canvas ==============
+function initParticles(canvasId) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let w, h, particles = [];
+
+  function resize() {
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width = w = rect.width;
+    canvas.height = h = rect.height;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const COUNT = 50;
+  for (let i = 0; i < COUNT; i++) {
+    particles.push({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      r: Math.random() * 1.6 + 0.4,
+      vx: (Math.random() - 0.5) * 0.25,
+      vy: (Math.random() - 0.5) * 0.25,
+      a: Math.random() * 0.5 + 0.15,
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, w, h);
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0 || p.x > w) p.vx *= -1;
+      if (p.y < 0 || p.y > h) p.vy *= -1;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(0,153,204,${p.a})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+initParticles('particles');
+initParticles('particles-final');
+
+// ============== Donut chart animate on view ==============
+const donutObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      // total circumference for r=40 ~ 251.3
+      // 25% = 62.8, 15% = 37.7, 20% = 50.3
+      document.getElementById('seg1').setAttribute('stroke-dasharray', '62.8 251.3');
+      document.getElementById('seg2').setAttribute('stroke-dasharray', '62.8 251.3');
+      document.getElementById('seg3').setAttribute('stroke-dasharray', '37.7 251.3');
+      document.getElementById('seg4').setAttribute('stroke-dasharray', '37.7 251.3');
+      document.getElementById('seg5').setAttribute('stroke-dasharray', '50.3 251.3');
+      donutObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.5 });
+const seg1 = document.getElementById('seg1');
+if (seg1) donutObserver.observe(seg1);
+
+// ============== Score toggles ==============
+const scoreNumEl = document.getElementById('score-num');
+function recalcScore() {
+  let total = 0;
+  document.querySelectorAll('#toggle-list .switch.on').forEach(s => {
+    total += parseInt(s.dataset.points, 10) || 0;
+  });
+  // Normalize to range close to 6058
+  const value = total;
+  if (scoreNumEl) {
+    const prev = parseInt(scoreNumEl.textContent.replace(/,/g, ''), 10) || 0;
+    if (value < prev) {
+      scoreNumEl.classList.add('flash-red');
+      setTimeout(() => scoreNumEl.classList.remove('flash-red'), 400);
+    }
+    countUp(scoreNumEl, value, 600);
+  }
+}
+document.querySelectorAll('#toggle-list .switch').forEach(sw => {
+  sw.addEventListener('click', () => {
+    sw.classList.toggle('on');
+    recalcScore();
+  });
+});
+
+// ============== Score slider for ecosystem ==============
+const slider = document.getElementById('score-slider');
+const sliderValue = document.getElementById('slider-value');
+const featureCards = document.querySelectorAll('.feature-card');
+function updateFeatures(score) {
+  featureCards.forEach(card => {
+    const threshold = parseInt(card.dataset.threshold, 10);
+    const badge = card.querySelector('.lock-badge');
+    if (score >= threshold) {
+      card.classList.remove('locked');
+      card.classList.add('unlocked');
+      if (badge) {
+        badge.innerHTML = 'UNLOCKED';
+      }
+    } else {
+      card.classList.add('locked');
+      card.classList.remove('unlocked');
+      if (badge) {
+        badge.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="10" stroke="currentColor" stroke-width="2"/><path d="M8 11V7a4 4 0 018 0v4" stroke="currentColor" stroke-width="2"/></svg> LOCKED';
+      }
+    }
+  });
+}
+slider?.addEventListener('input', (e) => {
+  const v = parseInt(e.target.value, 10);
+  if (sliderValue) sliderValue.textContent = v;
+  updateFeatures(v);
+});
+updateFeatures(parseInt(slider?.value || '600', 10));
+
+// ============== Accordion ==============
+document.querySelectorAll('.accordion').forEach(acc => {
+  acc.addEventListener('click', () => acc.classList.toggle('open'));
+});
+
+// ============== City tabs ==============
+document.querySelectorAll('.city-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.city-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+  });
+});
+
+// ============== Pricing toggle ==============
+const billToggle = document.getElementById('billing-toggle');
+const billDot = document.getElementById('billing-dot');
+const billMonthlyLabel = document.getElementById('bill-monthly-label');
+const billAnnualLabel = document.getElementById('bill-annual-label');
+const annualBadge = document.getElementById('annual-badge');
+let isAnnual = false;
+billToggle?.addEventListener('click', () => {
+  isAnnual = !isAnnual;
+  if (isAnnual) {
+    billDot.style.transform = 'translateX(28px)';
+    billMonthlyLabel.classList.replace('text-ink', 'text-ink/40');
+    billAnnualLabel.classList.replace('text-ink/40', 'text-ink');
+    annualBadge.classList.remove('hidden');
+  } else {
+    billDot.style.transform = 'translateX(0)';
+    billMonthlyLabel.classList.replace('text-ink/40', 'text-ink');
+    billAnnualLabel.classList.replace('text-ink', 'text-ink/40');
+    annualBadge.classList.add('hidden');
+  }
+  document.querySelectorAll('.price-value').forEach(el => {
+    const monthly = el.dataset.monthly;
+    const annual = el.dataset.annual;
+    if (!monthly || !annual) return;
+    el.textContent = isAnnual ? `₩${annual}` : `₩${monthly}`;
+  });
+  document.querySelectorAll('.price-period').forEach(el => {
+    el.textContent = isAnnual ? '/년' : '/월';
+  });
+});
+
+// ============== Final CTA ripple ==============
+document.getElementById('final-cta-btn')?.addEventListener('click', (e) => {
+  e.preventDefault();
+  const btn = e.currentTarget;
+  const rect = btn.getBoundingClientRect();
+  const ripple = document.createElement('span');
+  const size = Math.max(rect.width, rect.height) * 2;
+  ripple.style.cssText = `
+    position: absolute; border-radius: 50%; pointer-events: none;
+    width: ${size}px; height: ${size}px;
+    left: ${e.clientX - rect.left - size/2}px;
+    top: ${e.clientY - rect.top - size/2}px;
+    background: rgba(0,153,204,0.4);
+    transform: scale(0); transition: transform 0.6s ease, opacity 0.6s ease;
+    opacity: 1;
+  `;
+  btn.style.position = 'relative';
+  btn.style.overflow = 'hidden';
+  btn.appendChild(ripple);
+  requestAnimationFrame(() => {
+    ripple.style.transform = 'scale(1)';
+    ripple.style.opacity = '0';
+  });
+  setTimeout(() => ripple.remove(), 700);
+});
+</script>
+</body>
+</html>
